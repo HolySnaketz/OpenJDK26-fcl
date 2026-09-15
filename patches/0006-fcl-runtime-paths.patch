@@ -1,0 +1,117 @@
+--- a/src/hotspot/os/linux/os_linux.cpp
++++ b/src/hotspot/os/linux/os_linux.cpp
+@@ -1494,7 +1494,8 @@
+ #ifndef __ANDROID__
+   return "/tmp";
+ #else
+-  return "/usr/tmp";
++  const char* tmp = ::getenv("TMPDIR");
++  return (tmp != nullptr && tmp[0] != 0) ? tmp : "/data/local/tmp";
+ #endif
+ }
+ 
+--- a/src/hotspot/os/posix/perfMemory_posix.cpp
++++ b/src/hotspot/os/posix/perfMemory_posix.cpp
+@@ -128,7 +128,7 @@
+ // return the user specific temporary directory name.
+ // the caller is expected to free the allocated memory.
+ //
+-#define TMP_BUFFER_LEN (4+22)
++#define TMP_BUFFER_LEN (MAXPATHLEN+32)
+ static char* get_user_tmp_dir(const char* user, int vmid, int nspid) {
+   char* tmpdir = (char *)os::get_temp_directory();
+ #if defined(LINUX)
+@@ -136,7 +136,7 @@
+   // /proc/{vmid}/root/tmp/{PERFDATA_NAME_user}
+   // otherwise /tmp/{PERFDATA_NAME_user}
+   char buffer[TMP_BUFFER_LEN];
+-  assert(strlen(tmpdir) == 4, "No longer using /tmp - update buffer size");
++  assert(strlen(tmpdir) < MAXPATHLEN, "Temporary directory path is too long");
+ 
+   if (nspid != -1) {
+     jio_snprintf(buffer, TMP_BUFFER_LEN, "/proc/%d/root%s", vmid, tmpdir);
+--- a/src/java.base/unix/native/libjava/java_props_md.c
++++ b/src/java.base/unix/native/libjava/java_props_md.c
+@@ -372,6 +372,11 @@
+ 
+     /* tmp dir */
+     sprops.tmp_dir = P_tmpdir;
++#ifdef __ANDROID__
++    const char* android_tmp = getenv("TMPDIR");
++    sprops.tmp_dir = (android_tmp != NULL && android_tmp[0] != 0)
++        ? android_tmp : "/data/local/tmp";
++#endif
+ #ifdef MACOSX
+     /* darwin has a per-user temp dir */
+     static char tmp_path[PATH_MAX];
+--- a/src/jdk.attach/linux/classes/sun/tools/attach/VirtualMachineImpl.java
++++ b/src/jdk.attach/linux/classes/sun/tools/attach/VirtualMachineImpl.java
+@@ -51,7 +51,7 @@
+     // location is the same for all processes, otherwise the tools
+     // will not be able to find all Hotspot processes.
+     // Any changes to this needs to be synchronized with HotSpot.
+-    private static final Path TMPDIR = Path.of("/usr/tmp");
++    private static final Path TMPDIR = Path.of(System.getenv().getOrDefault("TMPDIR", System.getProperty("java.io.tmpdir")));
+ 
+     private static final Path PROC     = Path.of("/proc");
+     private static final Path STATUS   = Path.of("status");
+--- a/src/java.base/linux/classes/sun/nio/fs/LinuxFileSystem.java
++++ b/src/java.base/linux/classes/sun/nio/fs/LinuxFileSystem.java
+@@ -124,7 +124,7 @@
+      */
+     @Override
+     List<UnixMountEntry> getMountEntries() {
+-        return getMountEntries("/usr/etc/mtab");
++        return getMountEntries("/proc/mounts");
+     }
+ 
+     @Override
+--- a/src/java.base/unix/native/libjava/ProcessImpl_md.c
++++ b/src/java.base/unix/native/libjava/ProcessImpl_md.c
+@@ -229,7 +229,7 @@
+ static const char*
+ defaultPath(void)
+ {
+-    return ":/usr/bin";
++    return ":/system/bin";
+ }
+ 
+ static const char*
+--- a/src/java.base/unix/native/libjli/java_md.c
++++ b/src/java.base/unix/native/libjli/java_md.c
+@@ -620,7 +620,7 @@
+         } else {
+           /* Fake it as best we can or should we punt? */
+           JLI_TraceLauncher("SetExecName fake it = %s\n", argv[0]);
+-          JLI_Snprintf(buf, PATH_MAX, "/usr/bin/java");
++          JLI_Snprintf(buf, PATH_MAX, "/system/bin/java");
+         }
+       }
+     } else {
+@@ -631,7 +631,7 @@
+         } else {
+           /* Fake it as best we can or should we punt? */
+           JLI_TraceLauncher("SetExecName fake it 2 = %s\n", argv[0]);
+-          JLI_Snprintf(buf, PATH_MAX, "/usr/bin/java");
++          JLI_Snprintf(buf, PATH_MAX, "/system/bin/java");
+         }
+     }
+     exec_path = JLI_StringDup(buf);
+--- a/src/java.desktop/unix/native/common/awt/fontpath.c
++++ b/src/java.desktop/unix/native/common/awt/fontpath.c
+@@ -393,6 +393,15 @@
+     /* Private workaround to not use fontconfig library.
+      * May be useful during testing/debugging
+      */
++#ifdef __ANDROID__
++    // FCL supplies JAVA_HOME; keep font discovery independent of a Termux prefix.
++    const char* java_home = getenv("JAVA_HOME");
++    if (java_home != NULL && getenv("FONTCONFIG_FILE") == NULL) {
++        char config_path[PATH_MAX];
++        int n = snprintf(config_path, sizeof(config_path), "%s/conf/fonts/fonts.conf", java_home);
++        if (n > 0 && n < sizeof(config_path)) setenv("FONTCONFIG_FILE", config_path, 0);
++    }
++#endif
+     char *useFC = getenv("USE_J2D_FONTCONFIG");
+     if (useFC != NULL && !strcmp(useFC, "no")) {
+         return NULL;

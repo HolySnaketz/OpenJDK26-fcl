@@ -1,0 +1,7 @@
+{
+  "fclCommit": "f06b5c539b42c58172e33204dbd8e4220bd49403",
+  "jdk": "26+35 RI",
+  "scratch": "/home/arron/projects/openjdk26-fcl-build",
+  "forge": "26.2-65.1.0",
+  "gameVersionAssumption": "26.2"
+}

@@ -1,0 +1,51 @@
+--- a/src/java.base/unix/native/libjli/java_md.c
++++ b/src/java.base/unix/native/libjli/java_md.c
+@@ -572,11 +572,47 @@
+  * As a fallback, and for platforms other than Solaris and Linux,
+  * we use FindExecName to compute the executable name.
+  */
++#ifdef __ANDROID__
++/* FCL imports regular tar entries without executable bits. Restore only our
++ * own regular launcher files when invoked inside FCL's process. */
++static void RestoreFclExecutePermissions(void) {
++    const char* home = getenv("JAVA_HOME");
++    if (home == NULL || getenv("FCL_NATIVEDIR") == NULL) return;
++    char directory[PATH_MAX];
++    int n = snprintf(directory, sizeof(directory), "%s/bin", home);
++    if (n <= 0 || n >= sizeof(directory)) return;
++    DIR* dir = opendir(directory);
++    if (dir != NULL) {
++        struct dirent* entry;
++        while ((entry = readdir(dir)) != NULL) {
++            char path[PATH_MAX];
++            n = snprintf(path, sizeof(path), "%s/%s", directory, entry->d_name);
++            struct stat st;
++            if (n > 0 && n < sizeof(path) && lstat(path, &st) == 0 &&
++                S_ISREG(st.st_mode) && st.st_uid == geteuid()) {
++                chmod(path, st.st_mode | S_IXUSR);
++            }
++        }
++        closedir(dir);
++    }
++    char helper[PATH_MAX];
++    n = snprintf(helper, sizeof(helper), "%s/lib/jspawnhelper", home);
++    struct stat st;
++    if (n > 0 && n < sizeof(helper) && lstat(helper, &st) == 0 &&
++        S_ISREG(st.st_mode) && st.st_uid == geteuid()) {
++        chmod(helper, st.st_mode | S_IXUSR);
++    }
++}
++#endif
++
+ const char*
+ SetExecname(char **argv)
+ {
++#ifdef __ANDROID__
++    RestoreFclExecutePermissions();
++#endif
+     char* exec_path = NULL;
+-#if defined(__linux__)
++#if defined(__linux__) && !defined(__ANDROID__)
+     {
+         const char* self = "/proc/self/exe";
+         char buf[PATH_MAX+1];

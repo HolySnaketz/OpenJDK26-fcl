@@ -1,0 +1,15 @@
+{
+  "patches": {
+    "0001-android-termux-jdk26.patch": "9fba11cb7d1e2fab0adf4c62a98852a6dd9a2478919ff77ce56c0f3560d5ded2",
+    "0002-bionic-forbidden-function-declarations.patch": "3c31c09581cb866ec40b6ee5fa339423e28b18d9cb67cf1cef14293681e6385d",
+    "0003-jdk26-posix-jvm-path.patch": "a0121958f479ab4f2ec80ed1f508030ffb72b920c6d59ba56f47e2477738d216",
+    "0004-bionic-serviceability-core-notes.patch": "409236daa5b9eb5f804e939663a04961d64d5172b2b932dfb4f3c8e5a473d84c",
+    "0005-bionic-sa-strerror.patch": "8d444f286d91cd7f25971e80faf6a978596af2668d65c9c6ba2f5fa4ccc89b17",
+    "0006-fcl-runtime-paths.patch": "02e3b062e3c57b5ebce7de13cfafe3a2b70893c7554c58e26c1fbd5028b08a49",
+    "0007-fcl-embedded-launcher.patch": "23e758bbf95638fe5aa7fdb8fd4cae236e437a8dce5e8b97e137faa80df57547",
+    "0008-cacio-surface-manager-compat.patch": "a29cc845f452ac688850f86c4e8f52f2fe93369c948545e8d234c873a107ee52"
+  },
+  "filesCompared": 59,
+  "zeroFuzz": true,
+  "matchesCompiledSource": true
+}

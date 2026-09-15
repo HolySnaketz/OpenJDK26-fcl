@@ -1,0 +1,48 @@
+--- /dev/null
++++ b/src/java.desktop/share/classes/sun/java2d/SurfaceManagerFactory.java
+@@ -0,0 +1,31 @@
++/*
++ * Compatibility bridge for the Cacio version bundled with FCL 1.3.3.1.
++ * Distributed under GPL version 2 with the Classpath exception, as in LICENSE.
++ */
++package sun.java2d;
++
++import sun.awt.image.SunVolatileImage;
++import sun.awt.image.VolatileSurfaceManager;
++
++/** Legacy Cacio integration point; ordinary JDK26 graphics retain their factory. */
++public abstract class SurfaceManagerFactory {
++    private static volatile SurfaceManagerFactory instance;
++
++    public static SurfaceManagerFactory getInstance() {
++        SurfaceManagerFactory factory = instance;
++        if (factory == null) throw new IllegalStateException("No SurfaceManagerFactory installed");
++        return factory;
++    }
++
++    public static synchronized void setInstance(SurfaceManagerFactory factory) {
++        if (factory == null) throw new IllegalArgumentException("factory must not be null");
++        if (instance != null) throw new IllegalStateException("SurfaceManagerFactory already installed");
++        instance = factory;
++    }
++
++    public static SurfaceManagerFactory getInstalledInstance() {
++        return instance;
++    }
++
++    public abstract VolatileSurfaceManager createVolatileManager(SunVolatileImage image, Object context);
++}
+--- a/src/java.desktop/share/classes/sun/awt/image/SunVolatileImage.java
++++ b/src/java.desktop/share/classes/sun/awt/image/SunVolatileImage.java
+@@ -159,6 +159,11 @@
+ 
+     private VolatileSurfaceManager createSurfaceManager(
+             Object context, ImageCapabilities caps) {
++        sun.java2d.SurfaceManagerFactory legacyFactory =
++                sun.java2d.SurfaceManagerFactory.getInstalledInstance();
++        if ((caps == null || caps.isAccelerated()) && legacyFactory != null) {
++            return legacyFactory.createVolatileManager(this, context);
++        }
+         // GraphicsConfig may provide some specific surface manager
+         // implementation.
+         // In case it doesn't, or we were specifically requested to use
