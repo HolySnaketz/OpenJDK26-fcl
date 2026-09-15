@@ -47,5 +47,5 @@ FCL 1.3.3.1 源码提交：f06b5c539b42c58172e33204dbd8e4220bd49403。
 JDK 基线：官方 OpenJDK 26+35 RI。依赖参考：Termux packages c0df78899f52c9905e07321c999f24dd434bb7ae。
 游戏暂按 Minecraft 26.2；Forge 使用查询时官方推荐 26.2-65.1.0。具体 OpenGL/Vulkan 渲染选项、GPU、Android 版本和 ARM32 用户态支持尚无设备信息。
 
-说明：[INSTALL.zh-CN.md](INSTALL.zh-CN.md)、[BUILD.zh-CN.md](BUILD.zh-CN.md)。
+说明（内容由ChatGPT生成）：[INSTALL.zh-CN.md](INSTALL.zh-CN.md)、[BUILD.zh-CN.md](BUILD.zh-CN.md)。
 来源：[FCL 固定版本](https://github.com/FCL-Team/FoldCraftLauncher/tree/1.3.3.1)、[Forge 26.2](https://files.minecraftforge.net/net/minecraftforge/forge/index_26.2.html)、[官方 JDK26 RI 源码](https://download.java.net/openjdk/jdk26/ri/openjdk-26+35_src.zip)。
