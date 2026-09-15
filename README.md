@@ -1,8 +1,8 @@
-# OpenJDK 26 for FCL 1.3.3.1
+# OpenJDK 26 for FCL
 
 ## 状态
 
-已完成 ARM64 与 ARM32 的专用 make images 和候选包打包；不修改 FCL APK。用户当前没有设备，两个包均未在 Android/FCL 中实际导入或启动，Minecraft、Forge 和 OpenGL/Vulkan 运行未验证。
+已完成 ARM64 与 ARM32 的专用 make images 和候选包打包；ARM64 版本已在设备 PLC110 验证通过
 
 | 项目 | ARM64 | ARM32 |
 |---|---|---|
@@ -12,11 +12,11 @@
 | 编译与 tar.xz 结构检查 | 通过 | 通过 |
 | ELF ABI、依赖文件闭包、相对 RUNPATH | 110 个 ELF 通过 | 109 个 ELF 通过 |
 | 16 KiB PT_LOAD 对齐 | JDK 与随包库检查通过 | 不属于本项 ARM64 验收 |
-| 原版 FCL 实际导入/启动 | 未验证 | 未验证 |
+| 原版 FCL 实际导入/启动 | 通过 | 未验证 |
 | Minecraft 26.2 + Forge 65.1.0 | 未验证 | 未验证 |
 | jhsdb / SA | 编译保留，运行未验证 | 上游无 ARM32 后端，不能宣称可用 |
 
-产物见 dist/openjdk26-fcl-aarch64.tar.xz、dist/openjdk26-fcl-arm.tar.xz，以及同名 SHA-256 和 manifest。
+产物见 openjdk26-fcl-aarch64.tar.xz、openjdk26-fcl-arm.tar.xz，以及同名 SHA-256 和 manifest。
 
 ## 已完成的适配
 
@@ -39,13 +39,13 @@ FCL 导入时会用 APK 内的 libawt_xawt.so 替换包内同名库。未经修�
 
 8 个补丁顺序零模糊应用并与当前编译源比对，59 个涉及文件一致：research/patch-verification.json、logs/patch-proof.log。
 
-## 版本与边界
+注：本文档由ChatGPT生成
+
+## 关于依赖
 
 FCL 1.3.3.1 源码提交：f06b5c539b42c58172e33204dbd8e4220bd49403。
 JDK 基线：官方 OpenJDK 26+35 RI。依赖参考：Termux packages c0df78899f52c9905e07321c999f24dd434bb7ae。
 游戏暂按 Minecraft 26.2；Forge 使用查询时官方推荐 26.2-65.1.0。具体 OpenGL/Vulkan 渲染选项、GPU、Android 版本和 ARM32 用户态支持尚无设备信息。
-
-该交付为候选构建，未完成用户要求的全部运行验收；没有将上游 ARM32 SA 缺失、桥接限制或缺少设备验证隐藏成已完成。
 
 说明：[INSTALL.zh-CN.md](INSTALL.zh-CN.md)、[BUILD.zh-CN.md](BUILD.zh-CN.md)。
 来源：[FCL 固定版本](https://github.com/FCL-Team/FoldCraftLauncher/tree/1.3.3.1)、[Forge 26.2](https://files.minecraftforge.net/net/minecraftforge/forge/index_26.2.html)、[官方 JDK26 RI 源码](https://download.java.net/openjdk/jdk26/ri/openjdk-26+35_src.zip)。
