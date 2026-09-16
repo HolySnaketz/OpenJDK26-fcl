@@ -1,5 +1,7 @@
 # OpenJDK 26 for FCL
 
+面向 **Fold Craft Launcher（FCL）1.3.3.1** 的 OpenJDK 26 Android 移植，提供 ARM64（`aarch64`）与 ARM32（`arm`）Java 导入包。基于官方 **OpenJDK 26+35 RI**，适配 FCL 的运行时路径、嵌入启动及 Cacio/AWT 桥接，无须修改 FCL APK。
+
 ## 状态
 
 已完成 ARM64 与 ARM32 的专用 make images 和候选包打包；ARM64 版本已在设备 PLC110 验证通过
